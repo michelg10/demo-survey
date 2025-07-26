@@ -9,63 +9,91 @@ const surveyData = {
 // Questions Data
 const selectionQuestions = [
     {
-        question: "when making plans, how often do you initiate social activities?",
-        leftExtreme: "wait for others to plan",
-        rightExtreme: "always organize events"
+        question: "when making plans with friends, who usually gets things started?",
+        leftExtreme: "i wait for others to plan",
+        rightExtreme: "i'm the one who plans",
+        note: "extraversion"
     },
     {
-        question: "how excited are you about trying foods from cultures you've never experienced?",
-        leftExtreme: "prefer familiar foods",
-        rightExtreme: "eager to try anything new"
+        question: "how do you prefer to work on projects?",
+        leftExtreme: "i work best alone",
+        rightExtreme: "i work best with others",
+        note: "extraversion"
     },
     {
-        question: "how detailed are your to-do lists and planning systems?",
-        leftExtreme: "prefer spontaneous decisions",
-        rightExtreme: "meticulously plan everything"
+        question: "when making decisions, what guides you more?",
+        leftExtreme: "i analyze everything logically",
+        rightExtreme: "i trust my gut feeling",
+        note: "emotional stability"
     },
     {
-        question: "how comfortable are you having difficult conversations with friends or colleagues?",
-        leftExtreme: "extremely uncomfortable",
-        rightExtreme: "very comfortable"
+        question: "how much do you share about your feelings with close friends?",
+        leftExtreme: "i keep feelings private",
+        rightExtreme: "i share everything openly",
+        note: "emotional stability"
     },
     {
-        question: "how much do you rely on gut feelings versus logical analysis when making choices?",
-        leftExtreme: "pure logical analysis",
-        rightExtreme: "pure intuition"
+        question: "how do you feel about trying food you've never had before?",
+        leftExtreme: "i stick to what i know",
+        rightExtreme: "i love trying new things",
+        note: "adventurousness"
     },
     {
-        question: "how comfortable are you giving constructive feedback to peers?",
-        leftExtreme: "avoid giving feedback",
-        rightExtreme: "regularly offer guidance"
+        question: "how do you feel about trying new apps or gadgets?",
+        leftExtreme: "i stick with what works",
+        rightExtreme: "i love the latest tech",
+        note: "adventurousness"
     },
     {
-        question: "how excited are you about implementing new technologies in your daily routine?",
-        leftExtreme: "prefer established tools",
-        rightExtreme: "love trying latest innovations"
+        question: "when someone needs to hear hard truths, how do you handle it?",
+        leftExtreme: "i try to be subtle",
+        rightExtreme: "i'm comfortable being direct",
+        note: "authenticity"
     },
     {
-        question: "how openly do you share your feelings with close friends?",
-        leftExtreme: "keep emotions private",
-        rightExtreme: "share feelings freely"
+        question: "when introducing myself to new people, i tend to...",
+        leftExtreme: "downplay my achievements",
+        rightExtreme: "highlight my accomplishments",
+        note: "authenticity"
     },
     {
-        question: "how much do you enjoy working independently versus in teams?",
-        leftExtreme: "strongly prefer working alone",
-        rightExtreme: "strongly prefer teamwork"
+        question: "how do you handle commitments you've made that are no longer convenient?",
+        leftExtreme: "i follow through no matter what",
+        rightExtreme: "i cancel",
+        note: "conscientiousness"
     },
     {
-        question: "when faced with competing priorities, how do you balance personal goals with helping others?",
-        leftExtreme: "always help others first",
-        rightExtreme: "focus on personal goals first"
+        question: "when planning a weekend trip, i usually...",
+        leftExtreme: "wing it",
+        rightExtreme: "create a detailed itinerary",
+        note: "conscientiousness"
+    },
+    {
+        question: "how often do you give feedback when you see room for improvement?",
+        leftExtreme: "i keep thoughts to myself",
+        rightExtreme: "i share feedback openly",
+        note: "agreeableness"
+    },
+    {
+        question: "when your needs conflict with helping someone, what comes first?",
+        leftExtreme: "i help others first",
+        rightExtreme: "i take care of myself first",
+        note: "agreeableness"
     }
+    // {
+    //     question: "how do you keep track of things you need to do?",
+    //     leftExtreme: "i go with the flow",
+    //     rightExtreme: "i plan every detail",
+    //     note: "conscientiousness"
+    // },
 ];
 
 const freeResponseQuestions = [
-    "where do you see yourself in 5 years?",
-    "one hill i'd die on: (non-negotiable traits)",
-    "who is the person that has been the closest with you and why?",
-    "what movie character do you secretly channel? in what scene?",
-    "past me would be proud that i now..."
+    "my ideal tuesday in 5 years looks like...",
+    "one hill i'd die on is...",
+    "the person i'm closest to is...",
+    "a movie character i resonate with is...",
+    "younger me would never believe that i now..."
 ];
 
 // Survey State
