@@ -100,6 +100,7 @@ const freeResponseQuestions = [
 let currentStep = 'name'; // 'name', 'selection', 'freeresponse', 'thankyou'
 let currentSelectionIndex = 0;
 let currentFreeResponseIndex = 0;
+let randomizedSelectionQuestions = [];
 
 // Supabase Configuration
 const SUPABASE_URL = 'https://fadvhiyjwyysqdustjhk.supabase.co';
@@ -111,8 +112,20 @@ const selectionScreen = document.getElementById('selection-screen');
 const freeResponseScreen = document.getElementById('freeresponse-screen');
 const thankYouScreen = document.getElementById('thankyou-screen');
 
+// Fisher-Yates shuffle algorithm
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
 // Initialize Survey
 document.addEventListener('DOMContentLoaded', function() {
+    // Randomize selection questions order
+    randomizedSelectionQuestions = shuffleArray(selectionQuestions);
     setupEventListeners();
     showScreen('name');
 });
@@ -173,15 +186,13 @@ function handleNameContinue() {
 }
 
 function displaySelectionQuestion() {
-    if (currentSelectionIndex >= selectionQuestions.length) {
-        // Move to free response questions
-        currentStep = 'freeresponse';
-        currentFreeResponseIndex = 0;
-        showScreen('freeresponse');
+    if (currentSelectionIndex >= randomizedSelectionQuestions.length) {
+        // Skip free response questions and go directly to submit
+        submitSurveyData();
         return;
     }
     
-    const question = selectionQuestions[currentSelectionIndex];
+    const question = randomizedSelectionQuestions[currentSelectionIndex];
     document.getElementById('selection-question').textContent = question.question;
     document.getElementById('left-extreme').textContent = question.leftExtreme;
     document.getElementById('right-extreme').textContent = question.rightExtreme;
