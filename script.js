@@ -205,7 +205,7 @@ function displaySelectionQuestion() {
 
 function handleScaleSelection(event) {
     const value = parseInt(event.target.dataset.value);
-    const originalQuestionIndex = selectionQuestions.indexOf(randomizedSelectionQuestions[currentSelectionIndex]);
+    const currentQuestion = randomizedSelectionQuestions[currentSelectionIndex];
     
     // Update UI
     document.querySelectorAll('.scale-btn').forEach(btn => {
@@ -213,8 +213,8 @@ function handleScaleSelection(event) {
     });
     event.target.classList.add('selected');
     
-    // Store answer using original question index to maintain traceability
-    surveyData.selectionAnswers[originalQuestionIndex] = value;
+    // Store answer using question text as key for perfect traceability
+    surveyData.selectionAnswers[currentQuestion.question] = value;
     
     // Auto-advance after short delay
     setTimeout(() => {
@@ -246,8 +246,9 @@ function handleFreeResponseContinue() {
         return;
     }
     
-    // Store answer
-    surveyData.freeResponseAnswers[currentFreeResponseIndex] = answer;
+    // Store answer using question text as key
+    const currentQuestion = freeResponseQuestions[currentFreeResponseIndex];
+    surveyData.freeResponseAnswers[currentQuestion] = answer;
     
     currentFreeResponseIndex++;
     displayFreeResponseQuestion();
@@ -258,7 +259,7 @@ async function submitSurveyData() {
         // Prepare data for submission
         const submissionData = {
             timestamp: new Date().toISOString(),
-            surveyVersion: "1.1", // Version tracking for data analysis
+            surveyVersion: "1.2", // Version tracking for data analysis
             firstName: surveyData.firstName,
             lastName: surveyData.lastName,
             selectionAnswers: surveyData.selectionAnswers,
