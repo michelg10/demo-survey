@@ -120,6 +120,32 @@ body {
 }
 
 /* Button Styling */
+.back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 44px;
+    height: 44px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    background-color: transparent;
+    color: white;
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding-top: 4px;
+}
+
+.back-btn:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 .continue-btn {
     width: 100%;
     padding: 16px 20px;
@@ -259,7 +285,8 @@ body {
 .text-input:focus,
 .textarea-input:focus,
 .continue-btn:focus,
-.scale-btn:focus {
+.scale-btn:focus,
+.back-btn:focus {
     box-shadow: 0 0 0 3px rgba(255, 218, 120, 0.3);
 }
 

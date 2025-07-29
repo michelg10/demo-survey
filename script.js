@@ -2,6 +2,7 @@
 const surveyData = {
     firstName: '',
     lastName: '',
+    referral: '',
     selectionAnswers: {},
     freeResponseAnswers: {}
 };
@@ -101,6 +102,7 @@ let currentStep = 'name'; // 'name', 'selection', 'freeresponse', 'thankyou'
 let currentSelectionIndex = 0;
 let currentFreeResponseIndex = 0;
 let randomizedSelectionQuestions = [];
+let navigationHistory = [];
 
 // Supabase Configuration
 const SUPABASE_URL = 'https://fadvhiyjwyysqdustjhk.supabase.co';
@@ -108,6 +110,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 // DOM Elements
 const nameScreen = document.getElementById('name-screen');
+const referralScreen = document.getElementById('referral-screen');
 const selectionScreen = document.getElementById('selection-screen');
 const freeResponseScreen = document.getElementById('freeresponse-screen');
 const thankYouScreen = document.getElementById('thankyou-screen');
@@ -127,23 +130,43 @@ document.addEventListener('DOMContentLoaded', function() {
     // Randomize selection questions order
     randomizedSelectionQuestions = shuffleArray(selectionQuestions);
     setupEventListeners();
-    showScreen('name');
+    showScreen('name', false); // Don't add first screen to history
 });
 
 function setupEventListeners() {
     // Name screen
     document.getElementById('name-continue').addEventListener('click', handleNameContinue);
     
+    // Referral screen
+    document.getElementById('referral-continue').addEventListener('click', handleReferralContinue);
+    document.getElementById('referral-back').addEventListener('click', handleReferralBack);
+    
     // Selection screen - scale buttons
     document.querySelectorAll('.scale-btn').forEach(btn => {
         btn.addEventListener('click', handleScaleSelection);
     });
     
+    // Back buttons
+    document.getElementById('selection-back').addEventListener('click', handleSelectionBack);
+    document.getElementById('freeresponse-back').addEventListener('click', handleFreeResponseBack);
+    
     // Free response screen
     document.getElementById('freeresponse-continue').addEventListener('click', handleFreeResponseContinue);
 }
 
-function showScreen(screenType) {
+function showScreen(screenType, addToHistory = true) {
+    // Add current screen to history (but not if we're going back)
+    if (addToHistory && currentStep) {
+        navigationHistory.push({
+            step: currentStep,
+            selectionIndex: currentSelectionIndex,
+            freeResponseIndex: currentFreeResponseIndex
+        });
+    }
+    
+    // Update current step
+    currentStep = screenType;
+    
     // Hide all screens
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -153,6 +176,10 @@ function showScreen(screenType) {
     switch(screenType) {
         case 'name':
             nameScreen.classList.add('active');
+            break;
+        case 'referral':
+            referralScreen.classList.add('active');
+            document.getElementById('referral-input').focus();
             break;
         case 'selection':
             selectionScreen.classList.add('active');
@@ -180,9 +207,25 @@ function handleNameContinue() {
     surveyData.firstName = firstName;
     surveyData.lastName = lastName;
     
-    currentStep = 'selection';
+    showScreen('referral');
+}
+
+function handleReferralContinue() {
+    const referral = document.getElementById('referral-input').value.trim();
+    
+    if (!referral) {
+        alert('please let us know who brought you here');
+        return;
+    }
+    
+    surveyData.referral = referral;
+    
     currentSelectionIndex = 0;
     showScreen('selection');
+}
+
+function handleReferralBack() {
+    showScreen('name', false);
 }
 
 function displaySelectionQuestion() {
@@ -201,6 +244,15 @@ function displaySelectionQuestion() {
     document.querySelectorAll('.scale-btn').forEach(btn => {
         btn.classList.remove('selected');
     });
+    
+    // Restore previous answer if it exists
+    const previousAnswer = surveyData.selectionAnswers[question.question];
+    if (previousAnswer) {
+        const previousBtn = document.querySelector(`[data-value="${previousAnswer}"]`);
+        if (previousBtn) {
+            previousBtn.classList.add('selected');
+        }
+    }
 }
 
 function handleScaleSelection(event) {
@@ -254,14 +306,49 @@ function handleFreeResponseContinue() {
     displayFreeResponseQuestion();
 }
 
+function handleSelectionBack() {
+    if (currentSelectionIndex > 0) {
+        // Go back to previous selection question
+        currentSelectionIndex--;
+        displaySelectionQuestion();
+    } else {
+        // Go back to previous screen
+        goBackToPreviousScreen();
+    }
+}
+
+function handleFreeResponseBack() {
+    if (currentFreeResponseIndex > 0) {
+        // Go back to previous free response question
+        currentFreeResponseIndex--;
+        displayFreeResponseQuestion();
+    } else {
+        // Go back to selection questions
+        currentStep = 'selection';
+        currentSelectionIndex = randomizedSelectionQuestions.length - 1;
+        showScreen('selection', false);
+    }
+}
+
+function goBackToPreviousScreen() {
+    if (navigationHistory.length > 0) {
+        const previousState = navigationHistory.pop();
+        currentStep = previousState.step;
+        currentSelectionIndex = previousState.selectionIndex;
+        currentFreeResponseIndex = previousState.freeResponseIndex;
+        showScreen(previousState.step, false);
+    }
+}
+
 async function submitSurveyData() {
     try {
         // Prepare data for submission
         const submissionData = {
             timestamp: new Date().toISOString(),
-            surveyVersion: "1.2", // Version tracking for data analysis
+            surveyVersion: "2.0", // Version tracking for data analysis
             firstName: surveyData.firstName,
             lastName: surveyData.lastName,
+            referral: surveyData.referral,
             selectionAnswers: surveyData.selectionAnswers,
             freeResponseAnswers: surveyData.freeResponseAnswers
         };
@@ -304,6 +391,8 @@ document.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
         if (currentStep === 'name') {
             handleNameContinue();
+        } else if (currentStep === 'referral') {
+            handleReferralContinue();
         } else if (currentStep === 'freeresponse') {
             handleFreeResponseContinue();
         }
