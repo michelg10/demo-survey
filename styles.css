@@ -330,67 +330,94 @@ body {
     border-color: #FFDA78;
 }
 
-/* Ranking System */
-.ranking-container {
+/* Categorization System */
+.drop-zones {
     display: flex;
     flex-direction: column;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.drop-zone {
+    width: 100%;
+}
+
+.category-label {
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.drop-area {
+    min-height: 60px;
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+    transition: all 0.2s ease;
+}
+
+.drop-area.drag-over {
+    border-color: #FFDA78;
+    border-style: solid;
+    background-color: rgba(255, 218, 120, 0.1);
+    box-shadow: 0 0 0 2px rgba(255, 218, 120, 0.3);
+}
+
+.factors-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-bottom: 30px;
 }
 
-.ranking-item {
-    padding: 20px;
+.factor-item {
+    padding: 16px;
     border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
     background-color: rgba(255, 255, 255, 0.05);
     color: white;
     font-family: 'Cabinet Grotesk', sans-serif;
-    font-size: 16px;
-    font-weight: 500;
     cursor: grab;
     transition: all 0.2s ease;
     user-select: none;
-    position: relative;
+    text-align: center;
 }
 
-.ranking-item:active {
+.factor-item:active {
     cursor: grabbing;
 }
 
-.ranking-item.dragging {
+.factor-item.dragging {
     opacity: 0.5;
     transform: scale(1.05);
 }
 
-.ranking-item.drag-over {
-    border-color: #FFDA78;
-    background-color: rgba(255, 218, 120, 0.15);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 218, 120, 0.3);
+.factor-item.in-drop-zone {
+    margin: 0;
+    flex: 0 0 auto;
+    max-width: calc(50% - 4px);
 }
 
-.ranking-subtitle {
-    display: block;
-    font-size: 13px;
+.factor-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.factor-subtitle {
+    font-size: 12px;
     opacity: 0.7;
     font-weight: 400;
-    margin-top: 4px;
-}
-
-.ranking-number {
-    position: absolute;
-    left: -8px;
-    top: -8px;
-    width: 24px;
-    height: 24px;
-    background-color: #FFDA78;
-    color: #1F3C52;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
+    line-height: 1.3;
 }
 
 /* Closeness Scale */
@@ -468,13 +495,35 @@ body {
         font-size: 15px;
     }
     
-    .ranking-item {
-        padding: 16px;
-        font-size: 15px;
+    .factor-item {
+        padding: 14px;
     }
     
-    .ranking-subtitle {
-        font-size: 12px;
+    .factor-title {
+        font-size: 14px;
+    }
+    
+    .factor-subtitle {
+        font-size: 11px;
+    }
+    
+    .drop-area {
+        min-height: 50px;
+        padding: 10px;
+    }
+    
+    .category-label {
+        font-size: 13px;
+    }
+    
+    .factors-grid {
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+    
+    .drop-zones {
+        gap: 14px;
+        margin-bottom: 25px;
     }
     
     .scale-numbers {

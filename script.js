@@ -6,7 +6,7 @@ const surveyData = {
     freeResponseAnswers: {},
     referral: '',
     relationshipType: '',
-    friendshipReasons: [],
+    friendshipReasons: {},
     closenessRating: null
 };
 
@@ -168,7 +168,7 @@ function setupEventListeners() {
     // Ranking screen
     document.getElementById('ranking-continue').addEventListener('click', handleRankingContinue);
     document.getElementById('ranking-back').addEventListener('click', handleRankingBack);
-    setupDragAndDrop();
+    setupCategorizationDragAndDrop();
     
     // Closeness screen
     document.querySelectorAll('.closeness-btn').forEach(btn => {
@@ -218,6 +218,7 @@ function showScreen(screenType, addToHistory = true) {
             break;
         case 'ranking':
             rankingScreen.classList.add('active');
+            updateRankingReferralName();
             break;
         case 'closeness':
             closenessScreen.classList.add('active');
@@ -382,7 +383,7 @@ async function submitSurveyData() {
         // Prepare data for submission
         const submissionData = {
             timestamp: new Date().toISOString(),
-            surveyVersion: "2.0", // Version tracking for data analysis
+            surveyVersion: "2.1", // Version tracking for data analysis
             firstName: surveyData.firstName,
             lastName: surveyData.lastName,
             selectionAnswers: surveyData.selectionAnswers,
@@ -449,113 +450,84 @@ function handleRelationshipBack() {
     showScreen('referral', false);
 }
 
-// Ranking system handlers and drag-and-drop
-function setupDragAndDrop() {
-    const container = document.getElementById('ranking-container');
-    const items = container.querySelectorAll('.ranking-item');
+// Categorization system handlers and drag-and-drop
+function setupCategorizationDragAndDrop() {
+    const factorItems = document.querySelectorAll('.factor-item');
+    const dropAreas = document.querySelectorAll('.drop-area');
     
-    items.forEach((item, index) => {
-        item.draggable = true;
-        item.dataset.originalIndex = index;
-        
-        item.addEventListener('dragstart', handleDragStart);
-        item.addEventListener('dragover', handleDragOver);
-        item.addEventListener('drop', handleDrop);
-        item.addEventListener('dragend', handleDragEnd);
-        item.addEventListener('dragenter', handleDragEnter);
-        item.addEventListener('dragleave', handleDragLeave);
+    // Setup draggable items
+    factorItems.forEach(item => {
+        item.addEventListener('dragstart', handleFactorDragStart);
+        item.addEventListener('dragend', handleFactorDragEnd);
     });
     
-    updateRankingNumbers();
+    // Setup drop zones
+    dropAreas.forEach(area => {
+        area.addEventListener('dragover', handleDropZoneDragOver);
+        area.addEventListener('dragenter', handleDropZoneDragEnter);
+        area.addEventListener('dragleave', handleDropZoneDragLeave);
+        area.addEventListener('drop', handleDropZoneDrop);
+    });
 }
 
-let draggedElement = null;
+let draggedFactor = null;
 
-function handleDragStart(e) {
-    draggedElement = this;
+function handleFactorDragStart(e) {
+    draggedFactor = this;
     this.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', this.outerHTML);
+    e.dataTransfer.setData('text/plain', this.dataset.value);
 }
 
-function handleDragEnter(e) {
-    e.preventDefault();
-    if (this !== draggedElement) {
-        this.classList.add('drag-over');
-    }
+function handleFactorDragEnd(e) {
+    this.classList.remove('dragging');
+    draggedFactor = null;
 }
 
-function handleDragLeave(e) {
+function handleDropZoneDragEnter(e) {
     e.preventDefault();
-    // Only remove drag-over if we're actually leaving this element
+    this.classList.add('drag-over');
+}
+
+function handleDropZoneDragLeave(e) {
+    e.preventDefault();
+    // Only remove drag-over if we're actually leaving this drop area
     if (!this.contains(e.relatedTarget)) {
         this.classList.remove('drag-over');
     }
 }
 
-function handleDragOver(e) {
+function handleDropZoneDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    return false;
 }
 
-function handleDrop(e) {
+function handleDropZoneDrop(e) {
     e.preventDefault();
+    this.classList.remove('drag-over');
     
-    // Clear all drag-over states
-    document.querySelectorAll('.ranking-item').forEach(item => {
-        item.classList.remove('drag-over');
-    });
-    
-    if (this !== draggedElement) {
-        const container = document.getElementById('ranking-container');
-        const allItems = [...container.querySelectorAll('.ranking-item')];
-        const draggedIndex = allItems.indexOf(draggedElement);
-        const targetIndex = allItems.indexOf(this);
+    if (draggedFactor) {
+        // Move the factor to this drop zone
+        draggedFactor.classList.add('in-drop-zone');
+        this.appendChild(draggedFactor);
         
-        if (draggedIndex < targetIndex) {
-            this.parentNode.insertBefore(draggedElement, this.nextSibling);
-        } else {
-            this.parentNode.insertBefore(draggedElement, this);
-        }
-        
-        updateRankingNumbers();
+        // Store the categorization
+        const factorValue = draggedFactor.dataset.value;
+        const category = this.closest('.drop-zone').dataset.category;
+        surveyData.friendshipReasons[factorValue] = category;
     }
-    
-    return false;
-}
-
-function handleDragEnd(e) {
-    this.classList.remove('dragging');
-    document.querySelectorAll('.ranking-item').forEach(item => {
-        item.classList.remove('drag-over');
-    });
-    draggedElement = null;
-}
-
-function updateRankingNumbers() {
-    const items = document.querySelectorAll('.ranking-item');
-    items.forEach((item, index) => {
-        // Remove existing number if present
-        const existingNumber = item.querySelector('.ranking-number');
-        if (existingNumber) {
-            existingNumber.remove();
-        }
-        
-        // Add new number
-        const numberEl = document.createElement('div');
-        numberEl.className = 'ranking-number';
-        numberEl.textContent = index + 1;
-        item.appendChild(numberEl);
-    });
 }
 
 function handleRankingContinue() {
-    // Get current order
-    const items = document.querySelectorAll('.ranking-item');
-    const ranking = Array.from(items).map(item => item.dataset.value);
+    // Check if all factors have been categorized
+    const allFactors = ['similarity', 'complementarity', 'shared stress', 'time'];
+    const categorizedFactors = Object.keys(surveyData.friendshipReasons);
     
-    surveyData.friendshipReasons = ranking;
+    if (categorizedFactors.length < allFactors.length) {
+        alert('please categorize all factors before continuing');
+        return;
+    }
+    
     showScreen('closeness');
 }
 
@@ -595,6 +567,13 @@ function updateClosenessReferralName() {
 
 function updateRelationshipReferralName() {
     const referralNameEl = document.getElementById('relationship-referral-name');
+    if (referralNameEl && surveyData.referral) {
+        referralNameEl.textContent = surveyData.referral;
+    }
+}
+
+function updateRankingReferralName() {
+    const referralNameEl = document.getElementById('ranking-referral-name');
     if (referralNameEl && surveyData.referral) {
         referralNameEl.textContent = surveyData.referral;
     }

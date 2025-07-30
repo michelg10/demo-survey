@@ -88,18 +88,47 @@
         </div>
     </div>
 
-    <!-- Friendship Ranking Screen -->
+    <!-- Friendship Categorization Screen -->
     <div id="ranking-screen" class="screen">
         <div class="container top-aligned">
             <button id="ranking-back" class="back-btn">←</button>
-            <h2 class="subtitle">rank the following reasons for why your friendship blossomed</h2>
-            <p class="small-text" style="margin-bottom: 30px; opacity: 0.8;">drag to reorder from most important to least important</p>
+            <h2 class="subtitle">why did your friendship with <span id="ranking-referral-name"></span> blossom?</h2>
+            <p class="small-text" style="margin-bottom: 30px; opacity: 0.8;">sort these factors by importance</p>
             
-            <div id="ranking-container" class="ranking-container">
-                <div class="ranking-item" data-value="similarity">similarity<span class="ranking-subtitle">because of your similarities</span></div>
-                <div class="ranking-item" data-value="complementarity">complementarity<span class="ranking-subtitle">because of your differences</span></div>
-                <div class="ranking-item" data-value="shared stress">shared stress<span class="ranking-subtitle">because of stressful moments experienced together</span></div>
-                <div class="ranking-item" data-value="time">time<span class="ranking-subtitle">because of how long you've known each other</span></div>
+            <!-- Drop Zones -->
+            <div class="drop-zones">
+                <div class="drop-zone" data-category="significant">
+                    <h3 class="category-label">significant</h3>
+                    <div class="drop-area" id="significant-zone"></div>
+                </div>
+                <div class="drop-zone" data-category="modest">
+                    <h3 class="category-label">modest</h3>
+                    <div class="drop-area" id="modest-zone"></div>
+                </div>
+                <div class="drop-zone" data-category="unimportant">
+                    <h3 class="category-label">unimportant</h3>
+                    <div class="drop-area" id="unimportant-zone"></div>
+                </div>
+            </div>
+            
+            <!-- Draggable Factors Grid -->
+            <div class="factors-grid">
+                <div class="factor-item" data-value="similarity" draggable="true">
+                    <div class="factor-title">similarity</div>
+                    <div class="factor-subtitle">because of your similarities</div>
+                </div>
+                <div class="factor-item" data-value="complementarity" draggable="true">
+                    <div class="factor-title">complementarity</div>
+                    <div class="factor-subtitle">because of your differences</div>
+                </div>
+                <div class="factor-item" data-value="shared stress" draggable="true">
+                    <div class="factor-title">shared stress</div>
+                    <div class="factor-subtitle">because of stressful moments experienced together</div>
+                </div>
+                <div class="factor-item" data-value="time" draggable="true">
+                    <div class="factor-title">time</div>
+                    <div class="factor-subtitle">because of how long you've known each other</div>
+                </div>
             </div>
             
             <button id="ranking-continue" class="continue-btn">continue</button>
