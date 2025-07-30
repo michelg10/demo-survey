@@ -2,9 +2,12 @@
 const surveyData = {
     firstName: '',
     lastName: '',
-    referral: '',
     selectionAnswers: {},
-    freeResponseAnswers: {}
+    freeResponseAnswers: {},
+    referral: '',
+    relationshipType: '',
+    friendshipReasons: [],
+    closenessRating: null
 };
 
 // Questions Data
@@ -98,7 +101,7 @@ const freeResponseQuestions = [
 ];
 
 // Survey State
-let currentStep = 'name'; // 'name', 'selection', 'freeresponse', 'thankyou'
+let currentStep = 'name'; // 'name', 'selection', 'freeresponse', 'referral', 'relationship', 'ranking', 'closeness', 'thankyou'
 let currentSelectionIndex = 0;
 let currentFreeResponseIndex = 0;
 let randomizedSelectionQuestions = [];
@@ -110,9 +113,12 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 // DOM Elements
 const nameScreen = document.getElementById('name-screen');
-const referralScreen = document.getElementById('referral-screen');
 const selectionScreen = document.getElementById('selection-screen');
 const freeResponseScreen = document.getElementById('freeresponse-screen');
+const referralScreen = document.getElementById('referral-screen');
+const relationshipScreen = document.getElementById('relationship-screen');
+const rankingScreen = document.getElementById('ranking-screen');
+const closenessScreen = document.getElementById('closeness-screen');
 const thankYouScreen = document.getElementById('thankyou-screen');
 
 // Fisher-Yates shuffle algorithm
@@ -137,10 +143,6 @@ function setupEventListeners() {
     // Name screen
     document.getElementById('name-continue').addEventListener('click', handleNameContinue);
     
-    // Referral screen
-    document.getElementById('referral-continue').addEventListener('click', handleReferralContinue);
-    document.getElementById('referral-back').addEventListener('click', handleReferralBack);
-    
     // Selection screen - scale buttons
     document.querySelectorAll('.scale-btn').forEach(btn => {
         btn.addEventListener('click', handleScaleSelection);
@@ -152,6 +154,27 @@ function setupEventListeners() {
     
     // Free response screen
     document.getElementById('freeresponse-continue').addEventListener('click', handleFreeResponseContinue);
+    
+    // Referral screen
+    document.getElementById('referral-continue').addEventListener('click', handleReferralContinue);
+    document.getElementById('referral-back').addEventListener('click', handleReferralBack);
+    
+    // Relationship screen
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.addEventListener('click', handleRelationshipChoice);
+    });
+    document.getElementById('relationship-back').addEventListener('click', handleRelationshipBack);
+    
+    // Ranking screen
+    document.getElementById('ranking-continue').addEventListener('click', handleRankingContinue);
+    document.getElementById('ranking-back').addEventListener('click', handleRankingBack);
+    setupDragAndDrop();
+    
+    // Closeness screen
+    document.querySelectorAll('.closeness-btn').forEach(btn => {
+        btn.addEventListener('click', handleClosenessChoice);
+    });
+    document.getElementById('closeness-back').addEventListener('click', handleClosenessBack);
 }
 
 function showScreen(screenType, addToHistory = true) {
@@ -177,10 +200,6 @@ function showScreen(screenType, addToHistory = true) {
         case 'name':
             nameScreen.classList.add('active');
             break;
-        case 'referral':
-            referralScreen.classList.add('active');
-            document.getElementById('referral-input').focus();
-            break;
         case 'selection':
             selectionScreen.classList.add('active');
             displaySelectionQuestion();
@@ -188,6 +207,21 @@ function showScreen(screenType, addToHistory = true) {
         case 'freeresponse':
             freeResponseScreen.classList.add('active');
             displayFreeResponseQuestion();
+            break;
+        case 'referral':
+            referralScreen.classList.add('active');
+            document.getElementById('referral-input').focus();
+            break;
+        case 'relationship':
+            relationshipScreen.classList.add('active');
+            updateRelationshipReferralName();
+            break;
+        case 'ranking':
+            rankingScreen.classList.add('active');
+            break;
+        case 'closeness':
+            closenessScreen.classList.add('active');
+            updateClosenessReferralName();
             break;
         case 'thankyou':
             thankYouScreen.classList.add('active');
@@ -207,31 +241,15 @@ function handleNameContinue() {
     surveyData.firstName = firstName;
     surveyData.lastName = lastName;
     
-    showScreen('referral');
-}
-
-function handleReferralContinue() {
-    const referral = document.getElementById('referral-input').value.trim();
-    
-    if (!referral) {
-        alert('please let us know who brought you here');
-        return;
-    }
-    
-    surveyData.referral = referral;
-    
     currentSelectionIndex = 0;
     showScreen('selection');
 }
 
-function handleReferralBack() {
-    showScreen('name', false);
-}
-
 function displaySelectionQuestion() {
     if (currentSelectionIndex >= randomizedSelectionQuestions.length) {
-        // Skip free response questions and go directly to submit
-        submitSurveyData();
+        // INTENTIONALLY SKIPPING FREE RESPONSE QUESTIONS FOR NOW
+        // Move directly to referral questions (moved from beginning)
+        showScreen('referral');
         return;
     }
     
@@ -277,8 +295,8 @@ function handleScaleSelection(event) {
 
 function displayFreeResponseQuestion() {
     if (currentFreeResponseIndex >= freeResponseQuestions.length) {
-        // Submit data and show thank you
-        submitSurveyData();
+        // Move to referral questions (moved from beginning)
+        showScreen('referral');
         return;
     }
     
@@ -330,6 +348,25 @@ function handleFreeResponseBack() {
     }
 }
 
+function handleReferralContinue() {
+    const referral = document.getElementById('referral-input').value.trim();
+    
+    if (!referral) {
+        alert('please let us know who sent you this survey');
+        return;
+    }
+    
+    surveyData.referral = referral;
+    showScreen('relationship');
+}
+
+function handleReferralBack() {
+    // Go back to last selection question (since we're skipping free response)
+    currentStep = 'selection';
+    currentSelectionIndex = randomizedSelectionQuestions.length - 1;
+    showScreen('selection', false);
+}
+
 function goBackToPreviousScreen() {
     if (navigationHistory.length > 0) {
         const previousState = navigationHistory.pop();
@@ -348,9 +385,12 @@ async function submitSurveyData() {
             surveyVersion: "2.0", // Version tracking for data analysis
             firstName: surveyData.firstName,
             lastName: surveyData.lastName,
-            referral: surveyData.referral,
             selectionAnswers: surveyData.selectionAnswers,
-            freeResponseAnswers: surveyData.freeResponseAnswers
+            freeResponseAnswers: surveyData.freeResponseAnswers,
+            referral: surveyData.referral,
+            relationshipType: surveyData.relationshipType,
+            friendshipReasons: surveyData.friendshipReasons,
+            closenessRating: surveyData.closenessRating
         };
         
         // Convert to JSON string as specified
@@ -386,6 +426,180 @@ async function submitSurveyData() {
     showScreen('thankyou');
 }
 
+// Relationship characterization handlers
+function handleRelationshipChoice(event) {
+    const value = event.target.dataset.value;
+    
+    // Update UI
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    event.target.classList.add('selected');
+    
+    // Store answer
+    surveyData.relationshipType = value;
+    
+    // Auto-advance after short delay
+    setTimeout(() => {
+        showScreen('ranking');
+    }, 300);
+}
+
+function handleRelationshipBack() {
+    showScreen('referral', false);
+}
+
+// Ranking system handlers and drag-and-drop
+function setupDragAndDrop() {
+    const container = document.getElementById('ranking-container');
+    const items = container.querySelectorAll('.ranking-item');
+    
+    items.forEach((item, index) => {
+        item.draggable = true;
+        item.dataset.originalIndex = index;
+        
+        item.addEventListener('dragstart', handleDragStart);
+        item.addEventListener('dragover', handleDragOver);
+        item.addEventListener('drop', handleDrop);
+        item.addEventListener('dragend', handleDragEnd);
+        item.addEventListener('dragenter', handleDragEnter);
+        item.addEventListener('dragleave', handleDragLeave);
+    });
+    
+    updateRankingNumbers();
+}
+
+let draggedElement = null;
+
+function handleDragStart(e) {
+    draggedElement = this;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.outerHTML);
+}
+
+function handleDragEnter(e) {
+    e.preventDefault();
+    if (this !== draggedElement) {
+        this.classList.add('drag-over');
+    }
+}
+
+function handleDragLeave(e) {
+    e.preventDefault();
+    // Only remove drag-over if we're actually leaving this element
+    if (!this.contains(e.relatedTarget)) {
+        this.classList.remove('drag-over');
+    }
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    
+    // Clear all drag-over states
+    document.querySelectorAll('.ranking-item').forEach(item => {
+        item.classList.remove('drag-over');
+    });
+    
+    if (this !== draggedElement) {
+        const container = document.getElementById('ranking-container');
+        const allItems = [...container.querySelectorAll('.ranking-item')];
+        const draggedIndex = allItems.indexOf(draggedElement);
+        const targetIndex = allItems.indexOf(this);
+        
+        if (draggedIndex < targetIndex) {
+            this.parentNode.insertBefore(draggedElement, this.nextSibling);
+        } else {
+            this.parentNode.insertBefore(draggedElement, this);
+        }
+        
+        updateRankingNumbers();
+    }
+    
+    return false;
+}
+
+function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    document.querySelectorAll('.ranking-item').forEach(item => {
+        item.classList.remove('drag-over');
+    });
+    draggedElement = null;
+}
+
+function updateRankingNumbers() {
+    const items = document.querySelectorAll('.ranking-item');
+    items.forEach((item, index) => {
+        // Remove existing number if present
+        const existingNumber = item.querySelector('.ranking-number');
+        if (existingNumber) {
+            existingNumber.remove();
+        }
+        
+        // Add new number
+        const numberEl = document.createElement('div');
+        numberEl.className = 'ranking-number';
+        numberEl.textContent = index + 1;
+        item.appendChild(numberEl);
+    });
+}
+
+function handleRankingContinue() {
+    // Get current order
+    const items = document.querySelectorAll('.ranking-item');
+    const ranking = Array.from(items).map(item => item.dataset.value);
+    
+    surveyData.friendshipReasons = ranking;
+    showScreen('closeness');
+}
+
+function handleRankingBack() {
+    showScreen('relationship', false);
+}
+
+// Closeness scale handlers
+function handleClosenessChoice(event) {
+    const value = parseInt(event.target.dataset.value);
+    
+    // Update UI
+    document.querySelectorAll('.closeness-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    event.target.classList.add('selected');
+    
+    // Store answer
+    surveyData.closenessRating = value;
+    
+    // Auto-advance after short delay
+    setTimeout(() => {
+        submitSurveyData();
+    }, 300);
+}
+
+function handleClosenessBack() {
+    showScreen('ranking', false);
+}
+
+function updateClosenessReferralName() {
+    const referralNameEl = document.getElementById('referral-name');
+    if (referralNameEl && surveyData.referral) {
+        referralNameEl.textContent = surveyData.referral;
+    }
+}
+
+function updateRelationshipReferralName() {
+    const referralNameEl = document.getElementById('relationship-referral-name');
+    if (referralNameEl && surveyData.referral) {
+        referralNameEl.textContent = surveyData.referral;
+    }
+}
+
 // Keyboard navigation for better UX
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
@@ -395,6 +609,8 @@ document.addEventListener('keydown', function(event) {
             handleReferralContinue();
         } else if (currentStep === 'freeresponse') {
             handleFreeResponseContinue();
+        } else if (currentStep === 'ranking') {
+            handleRankingContinue();
         }
     }
     
@@ -402,6 +618,15 @@ document.addEventListener('keydown', function(event) {
     if (currentStep === 'selection' && event.key >= '1' && event.key <= '7') {
         const btnValue = event.key;
         const btn = document.querySelector(`[data-value="${btnValue}"]`);
+        if (btn) {
+            btn.click();
+        }
+    }
+    
+    // Number keys for closeness questions
+    if (currentStep === 'closeness' && event.key >= '0' && event.key <= '9') {
+        const btnValue = event.key;
+        const btn = document.querySelector(`.closeness-btn[data-value="${btnValue}"]`);
         if (btn) {
             btn.click();
         }

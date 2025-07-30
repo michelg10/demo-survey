@@ -27,15 +27,6 @@
         </div>
     </div>
 
-    <!-- Who Brought You Here Screen -->
-    <div id="referral-screen" class="screen">
-        <div class="container top-aligned">
-            <button id="referral-back" class="back-btn">←</button>
-            <h2 class="subtitle">who brought you here?</h2>
-            <textarea id="referral-input" class="textarea-input" placeholder=""></textarea>
-            <button id="referral-continue" class="continue-btn">continue</button>
-        </div>
-    </div>
 
     <!-- Selection Questions Screen -->
     <div id="selection-screen" class="screen">
@@ -69,6 +60,96 @@
             <h2 class="subtitle" id="freeresponse-question"></h2>
             <textarea id="freeresponse-input" class="textarea-input" placeholder=""></textarea>
             <button id="freeresponse-continue" class="continue-btn">continue</button>
+        </div>
+    </div>
+
+    <!-- Who Sent You Screen -->
+    <div id="referral-screen" class="screen">
+        <div class="container top-aligned">
+            <button id="referral-back" class="back-btn">←</button>
+            <h2 class="subtitle">who sent you this survey?</h2>
+            <textarea id="referral-input" class="textarea-input" placeholder=""></textarea>
+            <button id="referral-continue" class="continue-btn">continue</button>
+        </div>
+    </div>
+
+    <!-- Relationship Characterization Screen -->
+    <div id="relationship-screen" class="screen">
+        <div class="container">
+            <button id="relationship-back" class="back-btn">←</button>
+            <h2 class="subtitle">how would you characterize your relationship with <span id="relationship-referral-name"></span>?</h2>
+            
+            <div class="choice-container">
+                <button class="choice-btn" data-value="professional">💼  professional</button>
+                <button class="choice-btn" data-value="friendly">😃  friendly</button>
+                <button class="choice-btn" data-value="besties">👯  besties</button>
+                <button class="choice-btn" data-value="romantic">💕  romantic</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Friendship Ranking Screen -->
+    <div id="ranking-screen" class="screen">
+        <div class="container top-aligned">
+            <button id="ranking-back" class="back-btn">←</button>
+            <h2 class="subtitle">rank the following reasons for why your friendship blossomed</h2>
+            <p class="small-text" style="margin-bottom: 30px; opacity: 0.8;">drag to reorder from most important to least important</p>
+            
+            <div id="ranking-container" class="ranking-container">
+                <div class="ranking-item" data-value="similarity">similarity<span class="ranking-subtitle">because of your similarities</span></div>
+                <div class="ranking-item" data-value="complementarity">complementarity<span class="ranking-subtitle">because of your differences</span></div>
+                <div class="ranking-item" data-value="shared stress">shared stress<span class="ranking-subtitle">because of stressful moments experienced together</span></div>
+                <div class="ranking-item" data-value="time">time<span class="ranking-subtitle">because of how long you've known each other</span></div>
+            </div>
+            
+            <button id="ranking-continue" class="continue-btn">continue</button>
+        </div>
+    </div>
+
+    <!-- Final Closeness Screen -->
+    <div id="closeness-screen" class="screen">
+        <div class="container">
+            <button id="closeness-back" class="back-btn">←</button>
+            <h2 class="subtitle">last question. on a scale of 0 - 10, how close are you to <span id="referral-name"></span>?</h2>
+            
+            <div class="closeness-scale">
+                <div class="scale-numbers">
+                    <button class="closeness-btn" data-value="0">0</button>
+                    <button class="closeness-btn" data-value="1">1</button>
+                    <button class="closeness-btn" data-value="2">2</button>
+                    <button class="closeness-btn" data-value="3">3</button>
+                    <button class="closeness-btn" data-value="4">4</button>
+                    <button class="closeness-btn" data-value="5">5</button>
+                    <button class="closeness-btn" data-value="6">6</button>
+                    <button class="closeness-btn" data-value="7">7</button>
+                    <button class="closeness-btn" data-value="8">8</button>
+                    <button class="closeness-btn" data-value="9">9</button>
+                    <button class="closeness-btn" data-value="10">10</button>
+                </div>
+                
+                <div class="closeness-labels">
+                    <div class="closeness-label-item">
+                        <span class="closeness-number">0</span>
+                        <span class="closeness-desc">strangers</span>
+                    </div>
+                    <div class="closeness-label-item">
+                        <span class="closeness-number">3</span>
+                        <span class="closeness-desc">occasional small talk</span>
+                    </div>
+                    <div class="closeness-label-item">
+                        <span class="closeness-number">5</span>
+                        <span class="closeness-desc">hang out sometimes</span>
+                    </div>
+                    <div class="closeness-label-item">
+                        <span class="closeness-number">7</span>
+                        <span class="closeness-desc">trust them and seek them for support</span>
+                    </div>
+                    <div class="closeness-label-item">
+                        <span class="closeness-number">10</span>
+                        <span class="closeness-desc">ride or die</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
