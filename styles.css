@@ -372,6 +372,19 @@ body {
     box-shadow: 0 0 0 2px rgba(255, 218, 120, 0.3);
 }
 
+.drop-area.awaiting-drop {
+    border-color: rgba(255, 218, 120, 0.6);
+    border-style: solid;
+    background-color: rgba(255, 218, 120, 0.08);
+    cursor: pointer;
+}
+
+.drop-area.awaiting-drop:hover {
+    border-color: #FFDA78;
+    background-color: rgba(255, 218, 120, 0.15);
+    box-shadow: 0 0 0 1px rgba(255, 218, 120, 0.4);
+}
+
 .factors-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -386,19 +399,22 @@ body {
     background-color: rgba(255, 255, 255, 0.05);
     color: white;
     font-family: 'Cabinet Grotesk', sans-serif;
-    cursor: grab;
+    cursor: pointer;
     transition: all 0.2s ease;
     user-select: none;
     text-align: center;
 }
 
-.factor-item:active {
-    cursor: grabbing;
+.factor-item:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
-.factor-item.dragging {
-    opacity: 0.5;
-    transform: scale(1.05);
+.factor-item.selected {
+    border-color: #FFDA78;
+    background-color: rgba(255, 218, 120, 0.2);
+    box-shadow: 0 0 0 2px rgba(255, 218, 120, 0.3);
+    transform: scale(1.02);
 }
 
 .factor-item.in-drop-zone {

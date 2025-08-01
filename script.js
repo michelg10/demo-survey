@@ -168,7 +168,7 @@ function setupEventListeners() {
     // Ranking screen
     document.getElementById('ranking-continue').addEventListener('click', handleRankingContinue);
     document.getElementById('ranking-back').addEventListener('click', handleRankingBack);
-    setupCategorizationDragAndDrop();
+    setupCategorizationTapAndTap();
     
     // Closeness screen
     document.querySelectorAll('.closeness-btn').forEach(btn => {
@@ -450,71 +450,57 @@ function handleRelationshipBack() {
     showScreen('referral', false);
 }
 
-// Categorization system handlers and drag-and-drop
-function setupCategorizationDragAndDrop() {
+// Categorization system handlers and tap-and-tap
+function setupCategorizationTapAndTap() {
     const factorItems = document.querySelectorAll('.factor-item');
     const dropAreas = document.querySelectorAll('.drop-area');
     
-    // Setup draggable items
+    // Setup tappable factor items
     factorItems.forEach(item => {
-        item.addEventListener('dragstart', handleFactorDragStart);
-        item.addEventListener('dragend', handleFactorDragEnd);
+        item.addEventListener('click', handleFactorTap);
     });
     
-    // Setup drop zones
+    // Setup tappable drop zones
     dropAreas.forEach(area => {
-        area.addEventListener('dragover', handleDropZoneDragOver);
-        area.addEventListener('dragenter', handleDropZoneDragEnter);
-        area.addEventListener('dragleave', handleDropZoneDragLeave);
-        area.addEventListener('drop', handleDropZoneDrop);
+        area.addEventListener('click', handleDropZoneTap);
     });
 }
 
-let draggedFactor = null;
+let selectedFactor = null;
 
-function handleFactorDragStart(e) {
-    draggedFactor = this;
-    this.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', this.dataset.value);
-}
-
-function handleFactorDragEnd(e) {
-    this.classList.remove('dragging');
-    draggedFactor = null;
-}
-
-function handleDropZoneDragEnter(e) {
-    e.preventDefault();
-    this.classList.add('drag-over');
-}
-
-function handleDropZoneDragLeave(e) {
-    e.preventDefault();
-    // Only remove drag-over if we're actually leaving this drop area
-    if (!this.contains(e.relatedTarget)) {
-        this.classList.remove('drag-over');
-    }
-}
-
-function handleDropZoneDragOver(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-}
-
-function handleDropZoneDrop(e) {
-    e.preventDefault();
-    this.classList.remove('drag-over');
+function handleFactorTap(e) {
+    // Clear any previously selected factor
+    document.querySelectorAll('.factor-item').forEach(item => {
+        item.classList.remove('selected');
+    });
     
-    if (draggedFactor) {
+    // Select this factor
+    this.classList.add('selected');
+    selectedFactor = this;
+    
+    // Add visual feedback to drop zones
+    document.querySelectorAll('.drop-area').forEach(area => {
+        area.classList.add('awaiting-drop');
+    });
+}
+
+function handleDropZoneTap(e) {
+    if (selectedFactor) {
         // Move the factor to this drop zone
-        draggedFactor.classList.add('in-drop-zone');
-        this.appendChild(draggedFactor);
+        selectedFactor.classList.remove('selected');
+        selectedFactor.classList.add('in-drop-zone');
+        this.appendChild(selectedFactor);
         
         // Store the categorization
-        const factorValue = draggedFactor.dataset.value;
+        const factorValue = selectedFactor.dataset.value;
         const category = this.closest('.drop-zone').dataset.category;
         surveyData.friendshipReasons[factorValue] = category;
+        
+        // Clear selection and visual feedback
+        selectedFactor = null;
+        document.querySelectorAll('.drop-area').forEach(area => {
+            area.classList.remove('awaiting-drop');
+        });
     }
 }
 
