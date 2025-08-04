@@ -383,7 +383,7 @@ async function submitSurveyData() {
         // Prepare data for submission
         const submissionData = {
             timestamp: new Date().toISOString(),
-            surveyVersion: "2.1", // Version tracking for data analysis
+            surveyVersion: "2.2", // Version tracking for data analysis
             firstName: surveyData.firstName,
             lastName: surveyData.lastName,
             selectionAnswers: surveyData.selectionAnswers,
@@ -452,31 +452,54 @@ function handleRelationshipBack() {
 
 // Categorization system handlers and tap-and-tap
 function setupCategorizationTapAndTap() {
-    const factorItems = document.querySelectorAll('.factor-item');
-    const dropAreas = document.querySelectorAll('.drop-area');
+    // Use event delegation on the ranking screen to handle all factor and drop zone clicks
+    const rankingScreen = document.getElementById('ranking-screen');
     
-    // Setup tappable factor items
-    factorItems.forEach(item => {
-        item.addEventListener('click', handleFactorTap);
-    });
-    
-    // Setup tappable drop zones
-    dropAreas.forEach(area => {
-        area.addEventListener('click', handleDropZoneTap);
+    rankingScreen.addEventListener('click', function(e) {
+        // Handle factor clicks (whether in original grid or in drop zones)
+        if (e.target.closest('.factor-item')) {
+            handleFactorTap(e);
+            return;
+        }
+        
+        // Handle drop zone clicks (only empty areas)
+        if (e.target.classList.contains('drop-area')) {
+            handleDropZoneTap(e);
+            return;
+        }
+        
+        // Clicking on empty space deselects any selected factor
+        if (selectedFactor && !e.target.closest('.factor-item') && !e.target.classList.contains('drop-area')) {
+            document.querySelectorAll('.factor-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            document.querySelectorAll('.drop-area').forEach(area => {
+                area.classList.remove('awaiting-drop');
+            });
+            selectedFactor = null;
+        }
     });
 }
 
 let selectedFactor = null;
 
 function handleFactorTap(e) {
+    // Get the actual factor element that was clicked
+    const factorElement = e.target.closest('.factor-item');
+    if (!factorElement) return;
+    
+    // Prevent event bubbling to avoid conflicts with drop zone handlers
+    e.stopPropagation();
+    e.preventDefault();
+    
     // Clear any previously selected factor
     document.querySelectorAll('.factor-item').forEach(item => {
         item.classList.remove('selected');
     });
     
     // Select this factor
-    this.classList.add('selected');
-    selectedFactor = this;
+    factorElement.classList.add('selected');
+    selectedFactor = factorElement;
     
     // Add visual feedback to drop zones
     document.querySelectorAll('.drop-area').forEach(area => {
@@ -485,15 +508,17 @@ function handleFactorTap(e) {
 }
 
 function handleDropZoneTap(e) {
+    const dropArea = e.target;
+    
     if (selectedFactor) {
         // Move the factor to this drop zone
         selectedFactor.classList.remove('selected');
         selectedFactor.classList.add('in-drop-zone');
-        this.appendChild(selectedFactor);
+        dropArea.appendChild(selectedFactor);
         
         // Store the categorization
         const factorValue = selectedFactor.dataset.value;
-        const category = this.closest('.drop-zone').dataset.category;
+        const category = dropArea.closest('.drop-zone').dataset.category;
         surveyData.friendshipReasons[factorValue] = category;
         
         // Clear selection and visual feedback
