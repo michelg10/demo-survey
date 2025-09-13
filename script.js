@@ -383,7 +383,7 @@ async function submitSurveyData() {
         // Prepare data for submission
         const submissionData = {
             timestamp: new Date().toISOString(),
-            surveyVersion: "2.2", // Version tracking for data analysis
+            surveyVersion: "2.3", // Version tracking for data analysis
             firstName: surveyData.firstName,
             lastName: surveyData.lastName,
             selectionAnswers: surveyData.selectionAnswers,
@@ -442,7 +442,12 @@ function handleRelationshipChoice(event) {
     
     // Auto-advance after short delay
     setTimeout(() => {
-        showScreen('ranking');
+        if (value === 'not-close') {
+            // Skip ranking and closeness screens, go directly to submit
+            submitSurveyData();
+        } else {
+            showScreen('ranking');
+        }
     }, 300);
 }
 
